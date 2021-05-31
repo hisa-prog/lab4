@@ -1,74 +1,70 @@
-from flask import Blueprint
 from flask_restplus import fields, Resource, reqparse, Namespace
 from random import random
-reqp = reqparse.RequestParser()
 
-_list = Blueprint('list', __name__,
-                  template_folder='templates', static_folder='static')
 
-api = Namespace('list', description='some information')
+allarray = ['1']
 
-list_ = api.model('list',
+
+list_np = Namespace('list', description='list APIs')
+
+
+list_ = list_np.model('list',
                   {
                       'len': fields.String(required=True, description='Size of array'),
                       'array': fields.List(fields.String, required=True, description='Some array'),
                   })
 
-allarray = ['1']
-# name_space1 = api.namespace('list', description='list APIs')
-name_space1 = api
 
-
-@name_space1.route("/")
+@list_np.route("/")
 class ListClass(Resource):
-    @name_space1.doc("")
-    @name_space1.marshal_with(list_)
+    @list_np.doc("")
+    @list_np.marshal_with(list_)
     def get(self):
         """"Получение всего хранимого массива"""
         return {'len': str(len(allarray)), 'array': allarray}
 
-    @name_space1.doc("")
-    @name_space1.expect(list_)
-    @name_space1.marshal_with(list_)
+    @list_np.doc("")
+    @list_np.expect(list_)
+    @list_np.marshal_with(list_)
     def post(self):
         """Создание массива/наше описание функции пост"""
         global allarray
         # получить переданный массив из тела запроса
-        allarray = api.payload['array']
+        allarray = list_np.payload['array']
         # возвратить новый созданный массив клиенту
         return {'len': str(len(allarray)), 'array': allarray}
 
 
-minmax = api.model('minmax', {
+minmax = list_np.model('minmax', {
                    'min': fields.String, 'max': fields.String}, required=True, description='two values')
 
 
-@name_space1.route("/minmax")
+@list_np.route("/minmax")
 class MinMaxClass(Resource):
-    @name_space1.doc("")
+    @list_np.doc("")
     # маршаллинг данных в соответствии с моделью minmax
-    @name_space1.marshal_with(minmax)
+    @list_np.marshal_with(minmax)
     def get(self):
         """Получение Максимума и Минимума массива"""
         global allarray
         return {'min': min(allarray), 'max': max(allarray)}
 
-reqp.add_argument('len', type=int, required=False)
-reqp.add_argument('minval', type=float, required=False)
-reqp.add_argument('maxval', type=float, required=False)
 
-@name_space1.route("/makerand")
+reqp = reqparse.RequestParser()
+reqp.add_argument('len', type=int, required=False, default=10)
+reqp.add_argument('minval', type=float, required=False, default=1)
+reqp.add_argument('maxval', type=float, required=False, default=10)
+
+@list_np.route("/makerand")
 class MakeArrayClass(Resource):
-    @name_space1.doc("")
+
+    @list_np.doc("")
     # маршаллинг данных в соответствии с моделью minmax
-    @name_space1.expect(reqp)
-    @name_space1.marshal_with(list_)
+    @list_np.expect(reqp)
+    @list_np.marshal_with(list_)
     def get(self):
         """Возвращение массива случайных значений от min до max"""
         args = reqp.parse_args()
         array = [random()*(args['maxval']-args['minval'])+args['minval']
                  for i in range(args['len'])]
         return {'len': args['len'], 'array': array}
-
-
-# api.add_namespace(name_space1)
