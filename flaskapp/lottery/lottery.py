@@ -20,7 +20,7 @@ ticket = lottery_ns.model(
 
 @lottery_ns.route("/<int:ticket_num>")
 @lottery_ns.param('ticket_num', 'Номер лотерейного билета')
-@lottery_ns.response(400, 'Нерпавильные данные')
+@lottery_ns.response(400, 'Неправильные данные')
 @lottery_ns.response(404, 'Лотерейный билет не найден по номеру')
 class TicketResource(Resource):
     @lottery_ns.expect(ticket)
