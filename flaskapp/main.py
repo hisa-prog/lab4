@@ -6,7 +6,7 @@ from part.part import part_ns as partns1
 
 from list_ import list_np as partns2
 
-from lottery.lottery import lottery_ns as partns3
+from lottery.lottery import lottery_ns as partns3, lottery_bp
 
 
 app = Flask(__name__)
@@ -29,6 +29,6 @@ class MainClass(Resource):
 api.add_namespace(partns1)
 api.add_namespace(partns2)
 api.add_namespace(partns3)
-
+app.register_blueprint(lottery_bp, url_prefix="/lottery")
 
 app.run(debug=True)

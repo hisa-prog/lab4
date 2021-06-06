@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Данные всех лотерейных билетов</title>
+</head>
+<body>
+
+    <table border="1" cellpadding="5">
+        <tr>
+            <td>Номер билета</td>
+            <td>Цена билета</td>
+            <td>Статус продажи билета</td>
+            <td colspan="3">Поля билета</td>
+            <td>Счастливый?</td>
+        </tr>
+        {% for ticket in tickets %}
+            <tr>
+                <td>{{ticket.number}}</td>
+                <td>{{ticket.price}} ₽</td>
+                <td>
+                    {% if ticket.is_bought%}
+                        Билет продан!
+                    {% else %}
+                        Билет не продан!
+                    {% endif %}
+                </td>
+
+                {% for field in ticket.fields %}
+                    <td>{{field}}</td>
+                {% endfor %}
+                <td>
+                    {% if ticket.is_lucky() %}
+                    ✅
+                    {% else %}
+                    ❌
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+
+    </table>
+</body>
+</html>

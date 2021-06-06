@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Билеты, доступные для покупки</title>
+</head>
+<body>
+
+    <h1>Билеты, которые вы можете приобрести:</h1>
+    <table border="1" cellpadding="5">
+        <tr>
+            <td>Номер билета</td>
+            <td>Цена билета</td>
+        </tr>
+        {% for ticket in tickets %}
+
+            {% if not ticket.is_bought%}
+                <tr>
+                    <td>{{ticket.number}}</td>
+                    <td>{{ticket.price}} ₽</td>
+                </tr>
+            {% endif %}
+
+        {% endfor %}
+
+    </table>
+</body>
+</html>

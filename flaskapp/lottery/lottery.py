@@ -1,12 +1,19 @@
+from copy import copy
 
+from flask import Blueprint, render_template
 from flask_restplus import Resource, Namespace, fields
 import json
 
 from .models.ticket import Ticket
 
+# DataBase = {}
+DataBase = {
+    1: Ticket(1, [1, 2, 1], 100),
+    2: Ticket(2, [1, 2, 2], 150),
+    3: Ticket(3, [3, 3, 3], 200)
+}
 
-DB = {}
-
+lottery_bp = Blueprint('lottery', __name__, template_folder="templates")
 lottery_ns = Namespace('lottery', description='API для лотереи')
 
 ticket = lottery_ns.model(
@@ -28,16 +35,16 @@ class TicketResource(Resource):
         """
         Метод для внесения лотирейного билета в базу
         """
-        global DB
+        global DataBase
         json_data = lottery_ns.payload
 
-        if ticket_num not in DB:
+        if ticket_num not in DataBase:
             ticket_fields = json_data['fields']
             ticket_price = json_data['price']
             if len(ticket_fields) != 3:
                 return "Количество полей в билете должно быть равно 3", 400
             new_ticket = Ticket(ticket_num, ticket_fields, ticket_price)
-            DB[ticket_num] = new_ticket
+            DataBase[ticket_num] = new_ticket
             return new_ticket.jsonify()
         else:
             return "Билет с этим номером уже есть в базе", 400
@@ -46,9 +53,9 @@ class TicketResource(Resource):
         """
         Метод для получения информации о лотирейном билете
         """
-        global DB
-        if ticket_num in DB:
-            return DB[ticket_num].jsonify()
+        global DataBase
+        if ticket_num in DataBase:
+            return DataBase[ticket_num].jsonify()
         else:
             return "Лотерейный билет не найден", 404
 
@@ -56,9 +63,27 @@ class TicketResource(Resource):
         """
             Метод для изменения статуса билета (вызвается во время покупки билета в ларьке)
         """
-        global DB
-        if ticket_num in DB:
-            DB[ticket_num].sell()
-            return DB[ticket_num].jsonify()
+        global DataBase
+        if ticket_num in DataBase:
+            DataBase[ticket_num].sell()
+            return DataBase[ticket_num].jsonify()
         else:
             lottery_ns.abort(404)
+
+
+@lottery_bp.route("/full-data")
+def get_full_data():
+    res = []
+    for t in copy(DataBase).values():
+        t = copy(t)
+        res.append(t)
+    return render_template("full-data.html", tickets=res)
+
+
+@lottery_bp.route("/")
+def get_index():
+    res = []
+    for t in copy(DataBase).values():
+        t = copy(t)
+        res.append(t)
+    return render_template("index.html", tickets=res)
